@@ -20,10 +20,6 @@ playerY = 100
 gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 
 
-def player(x, y):
-    screen.blit(playerImg, (x, y))
-
-
 def gear_shift(num):
     global gear, gear_shifted
     if not clutch_pressed:
@@ -130,7 +126,7 @@ while run:
             playerX = distance * 50 - 200
         else:
             playerX = 200
-        player(playerX, dplayerY)
+        screen.blit(playerImg, (playerX, dplayerY))
         dplayerY = dplayerY
 
         print(gear, clutch_pressed, RPM, velocity, distance)
