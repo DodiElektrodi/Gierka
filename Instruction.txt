@@ -1,7 +1,5 @@
 Witajcie w "Blok Ekipa Drag Race Game" patent pended.
 Gra polega na ściganiu się po prostej, oczywiście bez skręcania.
 Sterowanie jest proste jak jebanie. Używamy w sumie 7 klawiszy.
-Klawisze numeryczne 1-5 służą do wybrania poziomu dojebania gazu
-gdzie 1 oznacza smyranie, a 5 wciśnięcie go w podłogę.
-Spacja jest naszym sprzęgłem, a I wywołuje wrzucanie wyższego biegu.
-Patent jest prosty ruszasz i jedziesz bez zajebania silnika.
+Klawisze numeryczne 1-6 do wbijania biegów, a spacja jest sprzęgłem.
+Zadaniem gracza jest zmiana biegów tak aby wygrać
