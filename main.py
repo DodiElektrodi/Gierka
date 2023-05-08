@@ -12,12 +12,26 @@ icon = pygame.image.load("sport-car.png")
 pygame.display.set_icon(icon)
 
 # Gracz
-playerImg = pygame.image.load("enemy_car.jpeg")
-playerImg = pygame.transform.scale(playerImg, (500, 200))
+playerImg = pygame.image.load("Player_car_template.png")
 playerX = -200
 playerY = 100
 # Parametry fury
 gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
+
+
+class wheel_class:
+    def __init__(self, image):
+        self.image = image
+        self.angle = 0
+
+    def show(self, pos_x, pos_y, speed):
+        vibration = (random.random() * 2 - 1) * (speed / 55)
+        img_copy = pygame.transform.rotate(self.image, self.angle)
+        screen.blit(img_copy, (pos_x - img_copy.get_width() // 2, pos_y - img_copy.get_height() // 2))
+
+player_wheel = pygame.image.load("wheel_template.png")
+front_wheel = wheel_class(player_wheel)
+back_wheel = wheel_class(player_wheel)
 
 
 def gear_shift(num):
@@ -68,11 +82,11 @@ tick = 0
 # Start
 while run:
     dt = clock.tick(30) / 1000  # w sekundach
-    screen.fill((0, 0, 0))
+    screen.fill((255, 255, 255))
     if tick == 10:
         game_state = "GP"
 
-# ___Ekran Początkowy
+    # ___Ekran Początkowy
     if game_state == "EP":
         # pętla eventów
         tick += 1
@@ -81,7 +95,7 @@ while run:
             if event.type == pygame.QUIT:
                 run = False
 
-# ___Rozgrywka___
+    # ___Rozgrywka___
     if game_state == "GP":
         # pętla eventów
         for event in pygame.event.get():
@@ -128,10 +142,14 @@ while run:
             playerX = 200
         screen.blit(playerImg, (playerX, dplayerY))
         dplayerY = dplayerY
-
+        d_wheel_speed = velocity / 3
+        front_wheel.angle -= d_wheel_speed
+        back_wheel.angle -= d_wheel_speed
+        front_wheel.show(playerX + 395, playerY + 130, velocity)
+        back_wheel.show(playerX + 115, playerY + 130, velocity)
         print(gear, clutch_pressed, RPM, velocity, distance)
 
-# ___Ekran Końcowy___
+    # ___Ekran Końcowy___
     if game_state == "EK":
         pass
     # ta linijka robi odświeżenie ekranu
