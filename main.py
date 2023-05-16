@@ -18,6 +18,10 @@ playerY = 100
 # Parametry fury
 gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 
+# zegary
+clock_img = pygame.image.load("Cloks.png")
+pointer_img = pygame.image.load("Pointer.png")
+
 
 class wheel_class:
     def __init__(self, image):
@@ -25,13 +29,29 @@ class wheel_class:
         self.angle = 0
 
     def show(self, pos_x, pos_y, speed):
-        vibration = (random.random() * 2 - 1) * (speed / 55)
+        vibration = (random.random() * 2 - 1) * speed / 55
         img_copy = pygame.transform.rotate(self.image, self.angle)
-        screen.blit(img_copy, (pos_x - img_copy.get_width() // 2, pos_y - img_copy.get_height() // 2))
+        screen.blit(img_copy,
+                    (pos_x - img_copy.get_width() // 2 + vibration,
+                     pos_y - img_copy.get_height() // 2 + vibration))
+
 
 player_wheel = pygame.image.load("wheel_template.png")
 front_wheel = wheel_class(player_wheel)
 back_wheel = wheel_class(player_wheel)
+
+
+def draw_speed_pointer(x, y, v):
+    pointer_copy = pygame.transform.rotate(pointer_img, 120 - v * 0.98)
+    screen.blit(pointer_copy,
+                (x - pointer_copy.get_width() // 2,
+                 y - pointer_copy.get_height() // 2))
+
+def draw_rpm_pointer(x, y, rpm):
+    pointer_copy = pygame.transform.rotate(pointer_img, 120 - rpm * 0.029925)
+    screen.blit(pointer_copy,
+                (x - pointer_copy.get_width() // 2,
+                 y - pointer_copy.get_height() // 2))
 
 
 def gear_shift(num):
@@ -57,7 +77,7 @@ def clutch_release():
 
 def d_rpm():
     amp = math.floor(abs(7250 - RPM) / 400)
-    return int((26 - amp) * math.sqrt(6 / gear))
+    return int((26 - amp) * (6 / gear))
 
 
 def rpm_to_speed():
@@ -126,7 +146,7 @@ while run:
         if velocity < 0: velocity = 0
         distance += velocity * dt / 3.6  # 3.6 daje nam metry na sekundę
         if RPM > 8000:
-            RPM -= 85
+            RPM -= 155
         if RPM < 1000:
             game_over()
             break
@@ -140,6 +160,10 @@ while run:
             playerX = distance * 50 - 200
         else:
             playerX = 200
+
+        screen.blit(clock_img, (0, 0))
+        draw_speed_pointer(342,529, velocity)
+        draw_rpm_pointer(562, 524, RPM)
         screen.blit(playerImg, (playerX, dplayerY))
         dplayerY = dplayerY
         d_wheel_speed = velocity / 3
