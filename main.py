@@ -5,7 +5,8 @@ import random
 # załączam pygame
 pygame.init()
 # ustawiam wielkość ekranu
-screen = pygame.display.set_mode((900, 600))
+screen_width, screen_height = 900, 600
+screen = pygame.display.set_mode((screen_width, screen_height))
 # ustawiam nazwę i miniature
 pygame.display.set_caption("Blok Ekipa Drag Race Game")
 icon = pygame.image.load("sport-car.png")
@@ -14,13 +15,17 @@ pygame.display.set_icon(icon)
 # Gracz
 playerImg = pygame.image.load("Player_car_template.png")
 playerX = -200
-playerY = 100
+playerY = 150
 # Parametry fury
 gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 
 # zegary
 clock_img = pygame.image.load("Cloks.png")
 pointer_img = pygame.image.load("Pointer.png")
+start_screen = pygame.image.load("Start_img.png")
+
+# Otoczenie
+background_img = pygame.image.load("Back_ground.png")
 
 
 class wheel_class:
@@ -47,11 +52,12 @@ def draw_speed_pointer(x, y, v):
                 (x - pointer_copy.get_width() // 2,
                  y - pointer_copy.get_height() // 2))
 
-def draw_rpm_pointer(x, y, rpm):
-    pointer_copy = pygame.transform.rotate(pointer_img, 120 - rpm * 0.029925)
+
+def draw_rpm_pointer(x_pos, y_pos, r):
+    pointer_copy = pygame.transform.rotate(pointer_img, 120 - r * 0.029925)
     screen.blit(pointer_copy,
-                (x - pointer_copy.get_width() // 2,
-                 y - pointer_copy.get_height() // 2))
+                (x_pos - pointer_copy.get_width() // 2,
+                 y_pos - pointer_copy.get_height() // 2))
 
 
 def gear_shift(num):
@@ -75,9 +81,9 @@ def clutch_release():
     clutch_pressed = False
 
 
-def d_rpm():
-    amp = math.floor(abs(7250 - RPM) / 400)
-    return int((26 - amp) * (6 / gear))
+def d_rpm(r, g):
+    optima = math.floor(abs(7250 - r) / 400)
+    return int((26 - optima) * (6 / g))
 
 
 def rpm_to_speed():
@@ -99,21 +105,27 @@ distance = 0
 wait = True
 run = True
 tick = 0
+start = 0
 # Start
 while run:
+    # Ustawienia zegara
     dt = clock.tick(30) / 1000  # w sekundach
     screen.fill((255, 255, 255))
-    if tick == 10:
-        game_state = "GP"
+    screen.blit(background_img, (start, 0))
 
     # ___Ekran Początkowy
     if game_state == "EP":
         # pętla eventów
         tick += 1
+        screen.blit(start_screen,
+                    (screen_width - start_screen.get_width() // 2,
+                     (screen_height-start_screen.get_height()) // 2))
         for event in pygame.event.get():
             # to umożliwia wyjście
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s: game_state = "GP"
 
     # ___Rozgrywka___
     if game_state == "GP":
@@ -136,7 +148,7 @@ while run:
 
         # tu są wszystkie akcje w zależności od trzymania sprzęgła
         if not clutch_pressed and gear != 0:
-            RPM += d_rpm()
+            RPM += d_rpm(RPM, gear)
             velocity = rpm_to_speed()
         if clutch_pressed or gear == 0:
             RPM += 70
@@ -147,12 +159,14 @@ while run:
         distance += velocity * dt / 3.6  # 3.6 daje nam metry na sekundę
         if RPM > 8000:
             RPM -= 155
+            if RPM > 9000:
+                game_over()
+                break
         if RPM < 1000:
             game_over()
             break
 
-        # tu mamy animowanie naszego pojazdu
-        # zacznijmy od ruchów góra dół
+        # Wyliczanie "skakania" gracza
         amp = 2 * (random.random() - 0.5)  # zwraca "losową" wartość [-1,1]
         dplayerY = playerY + amp * ((RPM / 4000) * (velocity / 100))
         # tu mamy wyjechanie na środek ekranu na start
@@ -161,17 +175,21 @@ while run:
         else:
             playerX = 200
 
+        # Rysowanie zegarów
         screen.blit(clock_img, (0, 0))
-        draw_speed_pointer(342,529, velocity)
+        draw_speed_pointer(342, 529, velocity)
         draw_rpm_pointer(562, 524, RPM)
+        # Rysowanie gracza
         screen.blit(playerImg, (playerX, dplayerY))
-        dplayerY = dplayerY
         d_wheel_speed = velocity / 3
         front_wheel.angle -= d_wheel_speed
         back_wheel.angle -= d_wheel_speed
         front_wheel.show(playerX + 395, playerY + 130, velocity)
         back_wheel.show(playerX + 115, playerY + 130, velocity)
+        # Wypisanie statystyk
         print(gear, clutch_pressed, RPM, velocity, distance)
+        start -= velocity * dt * 10
+        if start < -8000 : start = 0
 
     # ___Ekran Końcowy___
     if game_state == "EK":
