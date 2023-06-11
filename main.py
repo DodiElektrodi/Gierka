@@ -22,12 +22,27 @@ gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 # zegary
 clock_img = pygame.image.load("Cloks.png")
 pointer_img = pygame.image.load("Pointer.png")
-start_screen = pygame.image.load("Start_img.png")
+
+# ekrany
 start_screen_sup = pygame.image.load("Start_img_SUP.png")
+false_start = pygame.image.load("False_start.png")
+dead_engine = pygame.image.load("Dead_engine.png")
+win_screen = pygame.image.load("Win.png")
+
+pygame.display.set_caption('Show Text')
+font = pygame.font.Font('freesansbold.ttf', 32)
+text = font.render('GeeksForGeeks', True, (0, 255, 0), (0, 0, 128))
+textRect = text.get_rect()
 
 # Otoczenie
 background_img = pygame.image.load("Back_ground.png")
 line = pygame.image.load("Line.png")
+
+# Cyferki do odliczania
+num_0 = pygame.image.load("num_0.png")
+num_1 = pygame.image.load("num_1.png")
+num_2 = pygame.image.load("num_2.png")
+num_3 = pygame.image.load("num_3.png")
 
 
 class wheel_class:
@@ -71,10 +86,6 @@ def gear_shift(num):
         gear = num
 
 
-def game_over():
-    print("Game over")
-
-
 def clutch_release():
     global RPM, clutch_pressed, gear_shifted
     if gear_shifted:
@@ -107,7 +118,11 @@ distance = 0
 wait = True
 run = True
 tick_time = 0
+time = 0
 start = 0
+false_start_bool = False
+engine_fail = False
+win = False
 # Start
 while run:
     # Ustawienia zegara
@@ -161,12 +176,6 @@ while run:
         distance += velocity * dt / 3.6  # 3.6 daje nam metry na sekundę
         if RPM > 8000:
             RPM -= 155
-            if RPM > 9000:
-                game_over()
-                break
-        if RPM < 1000:
-            game_over()
-            break
 
         # Wyliczanie "skakania" gracza
         amp = 2 * (random.random() - 0.5)  # zwraca "losową" wartość [-1,1]
@@ -179,7 +188,7 @@ while run:
 
         # Rysowanie linij startu/mety
         if distance < 8:
-            screen.blit(line, (start, 230))
+            screen.blit(line, (start + 100, 230))
         elif distance > 250:
             screen.blit(line, (int(900 - ((distance-250) * 25)), 230))
 
@@ -196,13 +205,68 @@ while run:
         front_wheel.show(playerX + 395, playerY + 130, velocity)
         back_wheel.show(playerX + 115, playerY + 130, velocity)
         # Wypisanie statystyk
-        print(gear, clutch_pressed, RPM, velocity, distance)
+        print(gear, clutch_pressed, RPM, velocity, distance, time)
         start -= velocity * dt * 10
         if start < -8000: start = 0
 
         # Rysowanie wejścia
-        if tick_time < 90:
+        if tick_time <= 90:
             screen.blit(start_screen_sup, (-40, -tick_time * 12))
+        elif 90 < tick_time <= 120:
+            screen.blit(num_3,
+                        ((screen_width - num_3.get_width()) // 2,
+                         (screen_height - num_3.get_height()) // 2,))
+        elif 120 < tick_time <= 150:
+            screen.blit(num_2,
+                        ((screen_width - num_2.get_width()) // 2,
+                         (screen_height - num_2.get_height()) // 2,))
+        elif 150 < tick_time <= 180:
+            screen.blit(num_1,
+                        ((screen_width - num_1.get_width()) // 2,
+                         (screen_height - num_1.get_height()) // 2,))
+        elif 180 < tick_time <= 210:
+            screen.blit(num_0,
+                        ((screen_width - num_0.get_width()) // 2,
+                         (screen_height - num_0.get_height()) // 2,))
+
+        # Pomiar czasu
+        if tick_time == 180:
+            time = 0
+        if 0 < distance < 250:
+            time += dt
+
+        # Sprawdzam Falstart
+        if tick_time < 180 and velocity > 0:
+            false_start_bool = True
+            tick_time = 1000
+        if false_start_bool:
+            screen.blit(false_start, (0, min(-1000 + (tick_time - 1000) * 12, -40)))
+
+        # Sprawdzam obroty
+        if (RPM < 1000 or RPM > 9000) and not engine_fail :
+            engine_fail = True
+            tick_time = 1000
+        if engine_fail:
+            RPM = 0
+            if velocity > 0: velocity -= 5
+            elif velocity < 0: velocity = 0
+            screen.blit(dead_engine, (0, min(-1000 + (tick_time - 1000) * 12, -40)))
+
+        # Wygrana
+        if not win and distance > 260 and not (engine_fail or false_start_bool):
+            win = True
+            tick_time = 1000
+            pygame.display.set_caption('Show Text')
+            font = pygame.font.Font('freesansbold.ttf', 64)
+            text = font.render(str(round(time, 2)), True, (255, 0, 0), (0, 0, 0))
+            textRect = text.get_rect()
+            textRect.center = (480, 430)
+        if win:
+            screen.blit(win_screen, (0, min(-1000 + (tick_time - 1000) * 12, -40)))
+            if (tick_time-1000) > 85: screen.blit(text, textRect)
+
+
+
 
     # ___Ekran Końcowy___
     if game_state == "EK":
