@@ -9,25 +9,25 @@ screen_width, screen_height = 900, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 # ustawiam nazwę i miniature
 pygame.display.set_caption("Blok Ekipa Drag Race Game")
-icon = pygame.image.load("sport-car.png")
+icon = pygame.image.load("Grafiki/sport-car.png")
 pygame.display.set_icon(icon)
 
 # Gracz
-playerImg = pygame.image.load("Player_car.png")
+playerImg = pygame.image.load("Grafiki/Player_car.png")
 playerX = -200
 playerY = 150
 # Parametry fury
 gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 
 # zegary
-clock_img = pygame.image.load("Cloks.png")
-pointer_img = pygame.image.load("Pointer.png")
+clock_img = pygame.image.load("Grafiki/Cloks.png")
+pointer_img = pygame.image.load("Grafiki/Pointer.png")
 
 # ekrany
-start_screen_sup = pygame.image.load("Start_img_SUP.png")
-false_start = pygame.image.load("False_start.png")
-dead_engine = pygame.image.load("Dead_engine.png")
-win_screen = pygame.image.load("Win.png")
+start_screen_sup = pygame.image.load("Grafiki/Start_img_SUP.png")
+false_start = pygame.image.load("Grafiki/False_start.png")
+dead_engine = pygame.image.load("Grafiki/Dead_engine.png")
+win_screen = pygame.image.load("Grafiki/Win.png")
 
 pygame.display.set_caption('Show Text')
 font = pygame.font.Font('freesansbold.ttf', 32)
@@ -35,14 +35,14 @@ text = font.render('GeeksForGeeks', True, (0, 255, 0), (0, 0, 128))
 textRect = text.get_rect()
 
 # Otoczenie
-background_img = pygame.image.load("Back_ground.png")
-line = pygame.image.load("Line.png")
+background_img = pygame.image.load("Grafiki/Back_ground.png")
+line = pygame.image.load("Grafiki/Line.png")
 
 # Cyferki do odliczania
-num_0 = pygame.image.load("num_0.png")
-num_1 = pygame.image.load("num_1.png")
-num_2 = pygame.image.load("num_2.png")
-num_3 = pygame.image.load("num_3.png")
+num_0 = pygame.image.load("Grafiki/num_0.png")
+num_1 = pygame.image.load("Grafiki/num_1.png")
+num_2 = pygame.image.load("Grafiki/num_2.png")
+num_3 = pygame.image.load("Grafiki/num_3.png")
 
 
 class wheel_class:
@@ -58,7 +58,7 @@ class wheel_class:
                      pos_y - img_copy.get_height() // 2 + vibration))
 
 
-player_wheel = pygame.image.load("wheel_template.png")
+player_wheel = pygame.image.load("Grafiki/wheel_template.png")
 front_wheel = wheel_class(player_wheel)
 back_wheel = wheel_class(player_wheel)
 
