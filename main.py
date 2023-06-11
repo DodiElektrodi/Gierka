@@ -13,7 +13,7 @@ icon = pygame.image.load("sport-car.png")
 pygame.display.set_icon(icon)
 
 # Gracz
-playerImg = pygame.image.load("Player_car_template.png")
+playerImg = pygame.image.load("Player_car.png")
 playerX = -200
 playerY = 150
 # Parametry fury
@@ -23,9 +23,11 @@ gear_box = {0: float('inf'), 1: 27.5, 2: 13.7, 3: 9.1, 4: 7.4, 5: 5.3, 6: 4.37}
 clock_img = pygame.image.load("Cloks.png")
 pointer_img = pygame.image.load("Pointer.png")
 start_screen = pygame.image.load("Start_img.png")
+start_screen_sup = pygame.image.load("Start_img_SUP.png")
 
 # Otoczenie
 background_img = pygame.image.load("Back_ground.png")
+line = pygame.image.load("Line.png")
 
 
 class wheel_class:
@@ -104,7 +106,7 @@ gear_shifted = 0
 distance = 0
 wait = True
 run = True
-tick = 0
+tick_time = 0
 start = 0
 # Start
 while run:
@@ -112,20 +114,20 @@ while run:
     dt = clock.tick(30) / 1000  # w sekundach
     screen.fill((255, 255, 255))
     screen.blit(background_img, (start, 0))
+    tick_time += 1
 
     # ___Ekran Początkowy
     if game_state == "EP":
         # pętla eventów
-        tick += 1
-        screen.blit(start_screen,
-                    (screen_width - start_screen.get_width() // 2,
-                     (screen_height-start_screen.get_height()) // 2))
+        screen.blit(start_screen_sup, (-40, 0))
         for event in pygame.event.get():
             # to umożliwia wyjście
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s: game_state = "GP"
+                if event.key == pygame.K_s:
+                    game_state = "GP"
+                    tick_time = 0
 
     # ___Rozgrywka___
     if game_state == "GP":
@@ -175,10 +177,17 @@ while run:
         else:
             playerX = 200
 
+        # Rysowanie linij startu/mety
+        if distance < 8:
+            screen.blit(line, (start, 230))
+        elif distance > 250:
+            screen.blit(line, (int(900 - ((distance-250) * 25)), 230))
+
         # Rysowanie zegarów
         screen.blit(clock_img, (0, 0))
         draw_speed_pointer(342, 529, velocity)
         draw_rpm_pointer(562, 524, RPM)
+
         # Rysowanie gracza
         screen.blit(playerImg, (playerX, dplayerY))
         d_wheel_speed = velocity / 3
@@ -189,7 +198,11 @@ while run:
         # Wypisanie statystyk
         print(gear, clutch_pressed, RPM, velocity, distance)
         start -= velocity * dt * 10
-        if start < -8000 : start = 0
+        if start < -8000: start = 0
+
+        # Rysowanie wejścia
+        if tick_time < 90:
+            screen.blit(start_screen_sup, (-40, -tick_time * 12))
 
     # ___Ekran Końcowy___
     if game_state == "EK":
